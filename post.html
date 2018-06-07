@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Page Title</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    table {
+      margin-top: 30px;
+      border-collapse: collapse;
+      border-spacing: 0;
+      border: 1px solid #c0c0c0;
+    }
+
+    th,
+    td {
+      border: 1px solid #d0d0d0;
+      color: #404060;
+      padding: 10px;
+    }
+
+    th {
+      background-color: #09c;
+      font: bold 16px "微软雅黑";
+      color: #fff;
+    }
+
+    td {
+      font: 14px "微软雅黑";
+    }
+
+    tbody tr {
+      background-color: #f0f0f0;
+    }
+
+    tbody tr:hover {
+      cursor: pointer;
+      background-color: #fafafa;
+    }
+  </style>
+</head>
+
+<body>
+
+
+
+  <label>客户ID</label>
+  <input id="customerId" type="text" name="customerId">
+  <label>联系人ID</label>
+  <input id="contactId" type="text" name="contactId">
+  <label>NS1</label>
+  <input id="ns1" type="text" name="ns1">
+  <label>NS2</label>
+  <input id="ns2" type="text" name="ns2">
+  <label>域名</label>
+  <input id="domain" type="text" name="domain">
+  <button id="submit">submit</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>域名</th>
+        <th>状态</th>
+        <th>客户ID</th>
+        <th>联系人ID</th>
+        <th>开始时间(UTC)</th>
+        <th>成功时间(UTC)</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="tbody">
+
+    </tbody>
+  </table>
+
+
+</body>
+<script src="http://localhost:3000/jq"></script>
+<script>
+
+  $.ajax({
+    type: 'GET',
+    url: '/all',
+    dataType: 'json',
+    success: function (res) {
+      let domainsArr = res;
+      let str = '';
+      for (let i = 0; i < domainsArr.length; i++) {
+        const item = domainsArr[i];
+        str += `
+          <tr id=`+ item.domain + `>
+            <td>`+ item.domain + `</td>
+            <td>`+ (item.success ? '成功 Y(^_^)Y' : '失败 ☹') + `</td>
+            <td>`+ item.customer + `</td>
+            <td>`+ item.contact + `</td>
+            <td>`+ item.startTime + `</td>
+            <td>`+ item.endTime + `</td>
+            <td><button>删除</button></td>
+          </tr>  
+        `
+      }
+      $('#tbody').html(str);
+    }
+  })
+
+  let customer = document.querySelector('#customerId');
+  let contact = document.querySelector('#contactId');
+  let ns1 = document.querySelector('#ns1');
+  let ns2 = document.querySelector('#ns2');
+  let domain = document.querySelector('#domain');
+  if (!window.localStorage) {
+    alert('求你请换个好点的浏览器吧!')
+  } else {
+    let storage = window.localStorage;
+    customer.value = storage.customer;
+    contact.value = storage.contact;
+    ns1.value = storage.ns1;
+    ns2.value = storage.ns2;
+    domain.value = storage.domain;
+  }
+
+  function toVaild() {
+    let customer = document.querySelector('#customerId').value;
+    let contact = document.querySelector('#contactId').value;
+    let ns1 = document.querySelector('#ns1').value;
+    let ns2 = document.querySelector('#ns2').value;
+    let domain = document.querySelector('#domain').value;
+    // console.log(customer, contact, ns1, ns2, domain);
+    if (!customer) {
+      alert('客户id没填写');
+      return false;
+    }
+    if (!contact) {
+      alert('联系人id没填写');
+      return false;
+    }
+    if (!ns1) {
+      alert('ns1没填写');
+      return false;
+    }
+    if (!ns2) {
+      alert('ns2没填写');
+      return false;
+    }
+    if (!domain) {
+      alert('域名没填写');
+      return false;
+    }
+    if (domain.indexOf('.') === -1) {
+      alert('域名错误')
+      return false;
+    }
+    if (!window.localStorage) {
+      alert('求你请换个好点的浏览器吧!')
+    } else {
+      let storage = window.localStorage;
+      storage.customer = customer;
+      storage.contact = contact;
+      storage.ns1 = ns1;
+      storage.ns2 = ns2;
+      storage.domain = domain;
+    }
+    return true;
+  }
+
+  var submit = document.querySelector('#submit');
+  submit.onclick = function () {
+    if (toVaild()) {
+      $.ajax({
+        type: 'POST',
+        url: '/domain',
+        dataType: 'json',
+        data: 'customer=' + $('#customerId').val() + '&contact=' + $('#contactId').val() + '&ns1=' + $('#ns1').val() + '&ns2=' + $('#ns2').val() + '&domain=' + $('#domain').val(),
+        success: function (msg) {
+          console.log(msg);
+          $.ajax({
+            type: 'GET',
+            url: '/all',
+            dataType: 'json',
+            success: function (res) {
+              let domainsArr = res;
+              let str = '';
+              for (let i = 0; i < domainsArr.length; i++) {
+                const item = domainsArr[i];
+                str += `
+          <tr id=`+ item.domain + `>
+            <td>`+ item.domain + `</td>
+            <td>`+ (item.success ? '成功 Y(^_^)Y' : '失败 ☹') + `</td>
+            <td>`+ item.customer + `</td>
+            <td>`+ item.contact + `</td>
+            <td>`+ item.startTime + `</td>
+            <td>`+ item.endTime + (item.myFlag ? 'node' : '') + `</td>
+            <td><button>删除</button></td>
+          </tr>  
+        `
+              }
+              $('#tbody').html(str);
+            }
+          })
+        }
+      })
+    }
+  }
+  function del() {
+    var msg = "您真的确定要删除吗？";
+    if (confirm(msg) == true) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  $('#tbody').on('click', function (e) {
+      const deleteDomain = $(e.target).parent().parent().attr('id');
+      if ($(e.target).text() === '删除') {
+        if (del()) {
+          $(e.target).parent().parent().remove();
+        }
+      }
+      if (deleteDomain) {
+        $.ajax({
+          type: 'POST',
+          url: '/delete',
+          dataType: 'json',
+          data: 'domain=' + deleteDomain,
+          success: function (msg) {
+
+          }
+        })
+      }
+  })
+
+
+</script>
+
+</html>
