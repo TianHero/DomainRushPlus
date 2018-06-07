@@ -7,7 +7,7 @@ node+express+mongodb crud
 - 3 下载本程序zip
 ## 使用说明
 - 1 确保MongoDB服务打开了  
-![Alt text]((https://github.com/TianHero/DomainRushPlus/raw/master/screenshots/1.png)
+![Alt text]((./screenshots/1.png)
 - 2 在本程序目录下执行node server.js  
 node rush.js （需要开两个cmd窗口）server.js是启动node服务器的 可以认为和phpstudy作用一样， 用作前端向后台添加删除域名，rush.js是用来抢域名的
 这里我用vscode排版比较好看，实际用的话，还是开两个cmd吧
