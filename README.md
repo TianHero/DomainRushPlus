@@ -13,7 +13,7 @@ node rush.js （需要开两个cmd窗口）server.js是启动node服务器的 �
 这里我用vscode排版比较好看，实际用的话，还是开两个cmd吧
 ![Alt text](./screenshots/2.png)
 
-- 3 config.js里面填好代理账号ID和pai
+- 3 config.js里面填好代理账号ID和api key
 
 - 4 打开浏览器 http://localhost:3000/ 添加域名
 ![Alt text](./screenshots/3.png)
